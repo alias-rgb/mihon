@@ -10,7 +10,7 @@ This fork is mostly for personal customization.
 
 ## Download
 
-Download the appropriate APK from the `app/release/` directory.
+Download the latest APK from the [Releases](https://github.com/alias-rgb/mihon/releases) page.
 
 ## Extra Features
 
