@@ -31,7 +31,7 @@ Based on Mihon v0.20.1, so it works with current extension stores (TachiyomiX 1.
 - Tokyo Night theme, and Catppuccin / Nord theme fixes.
 - Selected fixes from upstream Mihon: long strip zoom and layout fixes, crash fixes for WebView and library
   range selection, backup restore fixes and more (see the [changelog](CHANGELOG.md)).
-- No in-app donation prompts, and no `(╬ಠ益ಠ)` error face on empty screens.
+- No `(╬ಠ益ಠ)` error face on empty screens.
 
 </div>
 
