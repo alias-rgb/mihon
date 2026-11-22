@@ -2,6 +2,8 @@
 .gradle
 .kotlin
 build
+# IDE (VS Code / Eclipse) compiler output
+bin/
 
 # IDE files
 *.iml
@@ -10,6 +12,7 @@ build
 /captures
 
 # Configuration files
+keystore.properties
 local.properties
 
 # macOS specific files

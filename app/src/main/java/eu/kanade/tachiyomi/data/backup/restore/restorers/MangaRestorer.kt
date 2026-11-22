@@ -10,6 +10,8 @@ import eu.kanade.tachiyomi.data.backup.models.BackupHistory
 import eu.kanade.tachiyomi.data.backup.models.BackupManga
 import eu.kanade.tachiyomi.data.backup.models.BackupTracking
 import tachiyomi.data.Database
+import tachiyomi.data.MemoColumnAdapter
+import tachiyomi.data.MemoColumnAdapter.encode
 import tachiyomi.data.UpdateStrategyColumnAdapter
 import tachiyomi.domain.category.interactor.GetCategories
 import tachiyomi.domain.chapter.interactor.GetChaptersByMangaId
@@ -134,6 +136,7 @@ class MangaRestorer(
             version = manga.version,
             isSyncing = 1,
             notes = manga.notes,
+            memo = manga.memo.let(MemoColumnAdapter::encode),
         )
         return manga
     }
@@ -207,6 +210,7 @@ class MangaRestorer(
                     chapter.dateFetch,
                     chapter.dateUpload,
                     chapter.version,
+                    chapter.memo,
                 )
             }
         }
@@ -230,6 +234,7 @@ class MangaRestorer(
                     chapterId = chapter.id,
                     version = chapter.version,
                     isSyncing = 0,
+                    memo = chapter.memo.let(MemoColumnAdapter::encode),
                 )
             }
         }
@@ -263,6 +268,7 @@ class MangaRestorer(
             updateStrategy = manga.updateStrategy,
             version = manga.version,
             notes = manga.notes,
+            memo = manga.memo,
         )
             .awaitAsOne()
     }
@@ -279,7 +285,7 @@ class MangaRestorer(
         restoreCategories(manga, categories, backupCategories)
         restoreChapters(manga, chapters)
         restoreTracking(manga, tracks)
-        restoreHistory(history)
+        restoreHistory(manga, history)
         restoreExcludedScanlators(manga, excludedScanlators)
         updateManga.awaitUpdateFetchInterval(manga, now, currentFetchWindow)
         return manga
@@ -319,16 +325,16 @@ class MangaRestorer(
         }
     }
 
-    private suspend fun restoreHistory(backupHistory: List<BackupHistory>) {
+    private suspend fun restoreHistory(manga: Manga, backupHistory: List<BackupHistory>) {
         val toUpdate = backupHistory.mapNotNull { history ->
             val dbHistory = database.historyQueries
-                .getHistoryByChapterUrl(history.url)
+                .getHistoryByChapterUrlAndMangaId(history.url, manga.id)
                 .awaitAsOneOrNull()
             val item = history.getHistoryImpl()
 
             if (dbHistory == null) {
                 val chapter = database.chaptersQueries
-                    .getChapterByUrl(history.url)
+                    .getChapterByUrlAndMangaId(history.url, manga.id)
                     .awaitAsOneOrNull()
                 return@mapNotNull if (chapter == null) {
                     // Chapter doesn't exist; skip
